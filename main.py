@@ -9,6 +9,7 @@ screen = pygame.display.set_mode((1280, 920))
 clock = pygame.time.Clock()
 running = True
 dt = 0
+game_state = "navigate"
 
 # fonts and colors
 font = pygame.font.Font(None, 74)
@@ -17,11 +18,14 @@ white = (255, 255, 255)
 purple = (128, 0, 128)
 pink = (255, 182, 193)
 
+player_image = pygame.image.load("/home/elijahcroft49/cat_game/claw/claw-neutral.png")
+player_image = pygame.transform.scale(player_image, (230, 240))
+
 player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 9)
 top = screen.get_height() / 9
 
 cat = Cat(screen.get_width(), screen.get_height() - 200)
-collision_distance = 80  # distance threshold for collision detection
+collision_distance = 180  # distance threshold for collision detection
 is_moving_down = False
 grabbed = False
 goal = pygame.Vector2(screen.get_width(), screen.get_width() / 9)
@@ -49,12 +53,44 @@ def start_screen():
                 # Check for "Start Game" button click
                 if (screen.get_width() / 2 - start_text.get_width() / 2 <= mouse_pos[0] <= screen.get_width() / 2 + start_text.get_width() / 2 and
                     screen.get_height() / 2 <= mouse_pos[1] <= screen.get_height() / 2 + start_text.get_height()):
+                    game_state = "navigate"
                     return True  # Start game
+                
                 # Check for "Exit" button click
                 if (screen.get_width() / 2 - exit_text.get_width() / 2 <= mouse_pos[0] <= screen.get_width() / 2 + exit_text.get_width() / 2 and
                     screen.get_height() / 2 + 60 <= mouse_pos[1] <= screen.get_height() / 2 + 60 + exit_text.get_height()):
                     pygame.quit()
                     return False
+def navigate():
+    screen.fill(purple)
+    title_text = font.render("Arcade Room", True, white)
+    screen.blit(title_text, (screen.get_width() / 2 - title_text.get_width() / 2, 50))
+
+    # Draw machine areas (rectangles here as placeholders)
+    machine1_rect = pygame.Rect(300, 300, 150, 150)
+    machine2_rect = pygame.Rect(600, 300, 150, 150)
+
+    pygame.draw.rect(screen, pink, machine1_rect)  # Machine 1
+    pygame.draw.rect(screen, pink, machine2_rect)  # Machine 2 (add more as needed)
+
+    # Display machine labels
+    machine1_text = button_font.render("Claw Machine", True, white)
+    screen.blit(machine1_text, (machine1_rect.x + 10, machine1_rect.y + machine1_rect.height + 10))
+
+    pygame.display.flip()
+
+    # Wait for user to click on a machine
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                
+                # Check if the player clicked on the claw machine
+                if machine1_rect.collidepoint(mouse_pos):
+                    return "claw_machine"  # Start the claw machine game
 
 def chance():
     return 0 
@@ -70,13 +106,15 @@ rect_y = screen.get_height() - rect_height
 
 if start_screen():
     while running:
+        if game_state == "navigate":
+            game_state = navigate()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
 
         # fill the screen with a color to wipe away anything from last frame
         screen.fill(purple)
-        pygame.draw.circle(screen, "red", player_pos, 40)
+        screen.blit(player_image, player_pos)
         pygame.draw.rect(screen, rect_color, (rect_x, rect_y, rect_width, rect_height))
         cat.fall()
 
