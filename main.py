@@ -105,8 +105,11 @@ def navigate():
     screen.blit(title_text, (screen.get_width() / 2 - title_text.get_width() / 2, 50))
 
     # Define machine areas
-    machine1_rect = pygame.Rect(300, 300, 150, 150)
-    machine2_rect = pygame.Rect(600, 300, 150, 150)
+    claw_machines = [
+        pygame.Rect(300, 300, 150, 150),  # Machine 1
+        pygame.Rect(600, 300, 150, 150),  # Machine 2
+    ]
+
 
 
     # Main loop for the arcade room
@@ -148,6 +151,15 @@ def navigate():
         # Draw the player sprite
         screen.blit(frame_list[current_frame], player_pos)
 
+        for machine_rect in claw_machines:
+            pygame.draw.rect(screen, pink, machine_rect)
+
+        # Check if player is over any claw machine and space is pressed
+        for machine_rect in claw_machines:
+            if machine_rect.collidepoint(player_pos.x, player_pos.y) and keys[pygame.K_SPACE]:
+                # Switch to the claw machine game
+                return "play_claw_machine" 
+
         # Flip the display to put your work on the screen
         pygame.display.flip()
 
@@ -175,6 +187,8 @@ if start_screen():
     while running:
         if game_state == "navigate":
             game_state = navigate()
+        elif game_state == "play_claw_machine":
+            pass
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
