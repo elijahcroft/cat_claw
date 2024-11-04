@@ -1,10 +1,12 @@
 import pygame
 import random
+import spritesheet
 
 from cat import Cat
 
 # pygame setup
 pygame.init()
+pygame.display.init()
 screen = pygame.display.set_mode((1280, 920))
 clock = pygame.time.Clock()
 running = True
@@ -17,6 +19,13 @@ button_font = pygame.font.Font(None, 50)
 white = (255, 255, 255)
 purple = (128, 0, 128)
 pink = (255, 182, 193)
+
+
+
+
+
+
+
 
 player_image = pygame.image.load("/home/elijahcroft49/cat_game/claw/claw-neutral.png")
 player_image = pygame.transform.scale(player_image, (230, 240))
@@ -61,36 +70,94 @@ def start_screen():
                     screen.get_height() / 2 + 60 <= mouse_pos[1] <= screen.get_height() / 2 + 60 + exit_text.get_height()):
                     pygame.quit()
                     return False
+                
+
+
+#acrade_plauer 
+
+
+try:
+    sprite_sheet_image = pygame.image.load("sprites.png").convert_alpha()
+    sprite_sheet = spritesheet.spriteSheet(sprite_sheet_image)
+except pygame.error as e:
+    print(f"Unable to load sprites: {e}")
+    running = False
+
+
+
+
+
 def navigate():
+    current_frame = 0
+    animation_speed = 0.1
+    frame_counter = 0
+    BG = (50, 50, 50)
+    running = True
+    player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
+    frames = [sprite_sheet.get_image(i, 0, 21.25, 25.75, 3, "black") for i in range(4)]
+    frames_up = [sprite_sheet.get_image(i, 1, 21.25, 25.75, 3, "black") for i in range(4)]
+    frames_left = [sprite_sheet.get_image(i, 2, 21.25, 25.75, 3, "black") for i in range(4)]
+    frames_right = [sprite_sheet.get_image(i, 3, 21.25, 25.75, 3, "black") for i in range(4)]
+    
+    # Arcade room setup
     screen.fill(purple)
     title_text = font.render("Arcade Room", True, white)
     screen.blit(title_text, (screen.get_width() / 2 - title_text.get_width() / 2, 50))
 
-    # Draw machine areas (rectangles here as placeholders)
+    # Define machine areas
     machine1_rect = pygame.Rect(300, 300, 150, 150)
     machine2_rect = pygame.Rect(600, 300, 150, 150)
 
-    pygame.draw.rect(screen, pink, machine1_rect)  # Machine 1
-    pygame.draw.rect(screen, pink, machine2_rect)  # Machine 2 (add more as needed)
 
-    # Display machine labels
-    machine1_text = button_font.render("Claw Machine", True, white)
-    screen.blit(machine1_text, (machine1_rect.x + 10, machine1_rect.y + machine1_rect.height + 10))
+    # Main loop for the arcade room
+    while running:
+        # Event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
 
-    pygame.display.flip()
+        # Fill the screen with a background color
+        screen.fill(BG)
 
-    # Wait for user to click on a machine
-    while True:
+        # Get time delta for consistent movement speed
+        dt = clock.tick(60) / 1000
+
+        # Player movement
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_w]:  # Move up
+            frame_list = frames_up
+            player_pos.y -= 300 * dt
+        elif keys[pygame.K_s]:  # Move down
+            frame_list = frames
+            player_pos.y += 300 * dt
+        elif keys[pygame.K_a]:  # Move left
+            frame_list = frames_left
+            player_pos.x -= 300 * dt
+        elif keys[pygame.K_d]:  # Move right
+            frame_list = frames_right
+            player_pos.x += 300 * dt
+        else:
+            frame_list = frames  # Default to idle animation
+
+        
+        frame_counter += animation_speed
+        if frame_counter >= len(frame_list):
+            frame_counter = 0
+        current_frame = int(frame_counter)
+
+        # Draw the player sprite
+        screen.blit(frame_list[current_frame], player_pos)
+
+        # Flip the display to put your work on the screen
+        pygame.display.flip()
+
+        # Event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 return False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()
-                
-                # Check if the player clicked on the claw machine
-                if machine1_rect.collidepoint(mouse_pos):
-                    return "claw_machine"  # Start the claw machine game
+
+
 
 def chance():
     return 0 
@@ -111,12 +178,11 @@ if start_screen():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-
-        # fill the screen with a color to wipe away anything from last frame
         screen.fill(purple)
         screen.blit(player_image, player_pos)
         pygame.draw.rect(screen, rect_color, (rect_x, rect_y, rect_width, rect_height))
         cat.fall()
+        
 
         if is_moving_down:
             player_pos.y += 300 * dt
