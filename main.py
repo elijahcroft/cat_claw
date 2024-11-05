@@ -7,7 +7,7 @@ from cat import Cat
 # pygame setup
 pygame.init()
 pygame.display.init()
-screen = pygame.display.set_mode((1280, 920))
+screen = pygame.display.set_mode((1280, 960))
 clock = pygame.time.Clock()
 running = True
 dt = 0
@@ -103,15 +103,15 @@ def navigate():
     current_frame = 0
     animation_speed = 0.1
     frame_counter = 0
-    BG = (50, 50, 50)
-    running = True
+    BG = pygame.image.load("small.png")
+    running = True  
     player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
     
     idle0 = sprite_sheet.get_image(0,0,21.25,25.75,3, "black")
     idle1 = sprite_sheet.get_image(0,1,21.25,25.75,3, "black")
     idle2 = sprite_sheet.get_image(0,2,21.25,25.75,3, "black")
     idle3 = sprite_sheet.get_image(0,3,21.25,25.75,3, "black")
-    idle_num = idle2
+    idle_num = idle0
     
 
     frames = [sprite_sheet.get_image(i, 0, 21.25, 25.75, 3, "black") for i in range(4)]
@@ -140,7 +140,7 @@ def navigate():
                 running = False
 
         # Fill the screen with a background color
-        screen.fill(BG)
+        screen.blit(BG,(0,0))
         idle = [idle_num]  
 
         # Get time delta for consistent movement speed
@@ -151,19 +151,19 @@ def navigate():
         if keys[pygame.K_w]:  # Move up
             idle_num = idle1
             frame_list = frames_up
-            player_pos.y -= 300 * dt
+            player_pos.y -= 200 * dt
         elif keys[pygame.K_s]:  # Move down
             idle_num = idle0
             frame_list = frames
-            player_pos.y += 300 * dt
+            player_pos.y += 200 * dt
         elif keys[pygame.K_a]:  # Move left
             idle_num = idle2
             frame_list = frames_left
-            player_pos.x -= 300 * dt
+            player_pos.x -= 200 * dt
         elif keys[pygame.K_d]:  # Move right
             idle_num = idle3
             frame_list = frames_right
-            player_pos.x += 300 * dt
+            player_pos.x += 200 * dt
         else:
             frame_list = idle  # Default to idle animation
 
