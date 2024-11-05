@@ -41,14 +41,26 @@ goal = pygame.Vector2(screen.get_width(), screen.get_width() / 9)
 
 def start_screen():
     screen.fill(purple)
-    title_text = font.render("Kitty Claw-Machine", True, white)
+    original  = pygame.image.load("kitty_logo.png")
+    scaled_image = pygame.transform.scale(original, (612,612))
+    title_logo = scaled_image
     start_text = button_font.render("Start Game", True, white)
     exit_text = button_font.render("Exit", True, white)
 
-    # Displaying title and buttons
-    screen.blit(title_text, (screen.get_width() / 2 - title_text.get_width() / 2, screen.get_height() / 4))
-    screen.blit(start_text, (screen.get_width() / 2 - start_text.get_width() / 2, screen.get_height() / 2))
-    screen.blit(exit_text, (screen.get_width() / 2 - exit_text.get_width() / 2, screen.get_height() / 2 + 60))
+    original_start = pygame.image.load("start.png")
+    scaled_start = pygame.transform.scale(original_start, (342,342))
+    start_logo = scaled_start
+
+
+    center_x = screen.get_width() / 2
+    title_y = screen.get_height() / 100
+    start_logo_y = screen.get_height() / 1.5
+
+
+    # Display title and buttons
+    screen.blit(title_logo, (center_x - title_logo.get_width() / 2, title_y))
+    screen.blit(start_logo, (center_x - start_logo.get_width() / 2, start_logo_y -100))
+
 
     pygame.display.flip()
 
@@ -60,8 +72,8 @@ def start_screen():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
                 # Check for "Start Game" button click
-                if (screen.get_width() / 2 - start_text.get_width() / 2 <= mouse_pos[0] <= screen.get_width() / 2 + start_text.get_width() / 2 and
-                    screen.get_height() / 2 <= mouse_pos[1] <= screen.get_height() / 2 + start_text.get_height()):
+                start_logo_rect = pygame.Rect(center_x - start_logo.get_width() / 2, start_logo_y, start_logo.get_width(), start_logo.get_height())
+                if start_logo_rect.collidepoint(mouse_pos):
                     game_state = "navigate"
                     return True  # Start game
                 
@@ -94,6 +106,14 @@ def navigate():
     BG = (50, 50, 50)
     running = True
     player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
+    
+    idle0 = sprite_sheet.get_image(0,0,21.25,25.75,3, "black")
+    idle1 = sprite_sheet.get_image(0,1,21.25,25.75,3, "black")
+    idle2 = sprite_sheet.get_image(0,2,21.25,25.75,3, "black")
+    idle3 = sprite_sheet.get_image(0,3,21.25,25.75,3, "black")
+    idle_num = idle2
+    
+
     frames = [sprite_sheet.get_image(i, 0, 21.25, 25.75, 3, "black") for i in range(4)]
     frames_up = [sprite_sheet.get_image(i, 1, 21.25, 25.75, 3, "black") for i in range(4)]
     frames_left = [sprite_sheet.get_image(i, 2, 21.25, 25.75, 3, "black") for i in range(4)]
@@ -121,6 +141,7 @@ def navigate():
 
         # Fill the screen with a background color
         screen.fill(BG)
+        idle = [idle_num]  
 
         # Get time delta for consistent movement speed
         dt = clock.tick(60) / 1000
@@ -128,19 +149,23 @@ def navigate():
         # Player movement
         keys = pygame.key.get_pressed()
         if keys[pygame.K_w]:  # Move up
+            idle_num = idle1
             frame_list = frames_up
             player_pos.y -= 300 * dt
         elif keys[pygame.K_s]:  # Move down
+            idle_num = idle0
             frame_list = frames
             player_pos.y += 300 * dt
         elif keys[pygame.K_a]:  # Move left
+            idle_num = idle2
             frame_list = frames_left
             player_pos.x -= 300 * dt
         elif keys[pygame.K_d]:  # Move right
+            idle_num = idle3
             frame_list = frames_right
             player_pos.x += 300 * dt
         else:
-            frame_list = frames  # Default to idle animation
+            frame_list = idle  # Default to idle animation
 
         
         frame_counter += animation_speed
