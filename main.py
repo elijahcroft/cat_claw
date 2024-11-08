@@ -1,6 +1,7 @@
 import pygame
 import random
 import spritesheet
+import numpy as np
 
 from cat import Cat
 
@@ -8,7 +9,7 @@ from cat import Cat
 pygame.init()
 pygame.display.init()
 screen = pygame.display.set_mode((1280, 960))
-clock = pygame.time.Clock()
+clock = pygame.time.Clock() 
 running = True
 dt = 0
 game_state = "navigate"
@@ -19,6 +20,9 @@ button_font = pygame.font.Font(None, 50)
 white = (255, 255, 255)
 purple = (128, 0, 128)
 pink = (255, 182, 193)
+blue = (174,198,207)
+
+
 
 
 
@@ -40,11 +44,28 @@ grabbed = False
 goal = pygame.Vector2(screen.get_width(), screen.get_width() / 9)
 
 def start_screen():
-    screen.fill(purple)
+    square = pygame.image.load("check.png")
+    new_square = pygame.transform.scale(square, (2400,2400))
+    background = new_square
+    bg_x = 0
+
+    bg_width = screen.get_width()
+    bg_speed = 1
+
+    #sine wave
+
+    frequency = .01
+    amplitude = 100
+    init_time = 0
+
+    
+
+
+
+    screen.fill(pink)
     original  = pygame.image.load("kitty_logo.png")
     scaled_image = pygame.transform.scale(original, (612,612))
     title_logo = scaled_image
-    start_text = button_font.render("Start Game", True, white)
     exit_text = button_font.render("Exit", True, white)
 
     original_start = pygame.image.load("start.png")
@@ -62,13 +83,35 @@ def start_screen():
     screen.blit(start_logo, (center_x - start_logo.get_width() / 2, start_logo_y -100))
 
 
+
     pygame.display.flip()
 
     while True:
+        screen.fill(white)
+        
+        
+        bg_x -= bg_speed
+        if bg_x <= -bg_width:
+            bg_x = 0
+        
+        init_time += 0.05
+
+        siny = amplitude * np.sin(2*np.pi * frequency * init_time) +300
+
+        
+        #screen.blit(background, (bg_x, 0))
+        screen.blit(background, (bg_x, siny-800))
+
+        
+        screen.blit(title_logo, (center_x - title_logo.get_width() / 2, title_y))
+        screen.blit(start_logo, (center_x - start_logo.get_width() / 2, start_logo_y -100))
+        pygame.display.flip()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 return False
+            
+            
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
                 # Check for "Start Game" button click
@@ -82,6 +125,7 @@ def start_screen():
                     screen.get_height() / 2 + 60 <= mouse_pos[1] <= screen.get_height() / 2 + 60 + exit_text.get_height()):
                     pygame.quit()
                     return False
+        
                 
 
 
