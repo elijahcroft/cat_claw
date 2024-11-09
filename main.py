@@ -18,7 +18,7 @@ game_state = "navigate"
 font = pygame.font.Font(None, 74)
 button_font = pygame.font.Font(None, 50)
 white = (255, 255, 255)
-purple = (128, 0, 128)
+purple = (128, 36, 250)
 pink = (255, 182, 193)
 blue = (174,198,207)
 
@@ -30,7 +30,8 @@ blue = (174,198,207)
 
 
 
-
+claw_machine = pygame.image.load("claw-machine.png")
+claw_machine = pygame.transform.scale(claw_machine,(300,300))
 player_image = pygame.image.load("/home/elijahcroft49/cat_game/claw/claw-neutral.png")
 player_image = pygame.transform.scale(player_image, (230, 240))
 
@@ -87,7 +88,7 @@ def start_screen():
     pygame.display.flip()
 
     while True:
-        screen.fill(white)
+        screen.fill(purple)
         
         
         bg_x -= bg_speed
@@ -158,7 +159,7 @@ def navigate():
     idle_num = idle0
     
 
-    frames = [sprite_sheet.get_image(i, 0, 21.25, 25.75, 3, "black") for i in range(4)]
+    frames = [sprite_sheet.get_image(i, 0, 64, 64, 3, "black") for i in range(4)]
     frames_up = [sprite_sheet.get_image(i, 1, 21.25, 25.75, 3, "black") for i in range(4)]
     frames_left = [sprite_sheet.get_image(i, 2, 21.25, 25.75, 3, "black") for i in range(4)]
     frames_right = [sprite_sheet.get_image(i, 3, 21.25, 25.75, 3, "black") for i in range(4)]
@@ -171,7 +172,9 @@ def navigate():
     # Define machine areas
     claw_machines = [
         pygame.Rect(300, 300, 150, 150),  # Machine 1
-        pygame.Rect(600, 300, 150, 150),  # Machine 2
+        screen.blit(claw_machine, (300,300)),
+        pygame.Rect(600, 300, 150, 150)  # Machine 2
+
     ]
 
 
@@ -221,7 +224,8 @@ def navigate():
         screen.blit(frame_list[current_frame], player_pos)
 
         for machine_rect in claw_machines:
-            pygame.draw.rect(screen, pink, machine_rect)
+            screen.blit(claw_machine,(100,200))
+            pygame.draw.rect(screen, white, machine_rect )
 
         # Check if player is over any claw machine and space is pressed
         for machine_rect in claw_machines:
