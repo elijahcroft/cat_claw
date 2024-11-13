@@ -2,6 +2,7 @@ import pygame
 import random
 import spritesheet
 import numpy as np
+import pytmx
 
 from cat import Cat
 
@@ -133,6 +134,8 @@ def start_screen():
 #acrade_plauer 
 
 
+
+
 try:
     sprite_sheet_image = pygame.image.load("sprites.png").convert_alpha()
     sprite_sheet = spritesheet.spriteSheet(sprite_sheet_image)
@@ -148,7 +151,7 @@ def navigate():
     current_frame = 0
     animation_speed = 0.1
     frame_counter = 0
-    BG = pygame.image.load("small.png")
+    BG = pygame.image.load("tiles.png")
     running = True  
     player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
     
@@ -159,7 +162,7 @@ def navigate():
     idle_num = idle0
     
 
-    frames = [sprite_sheet.get_image(i, 0, 64, 64, 3, "black") for i in range(4)]
+    frames = [sprite_sheet.get_image(i, 0, 21.25, 25.75, 3, "black") for i in range(4)]
     frames_up = [sprite_sheet.get_image(i, 1, 21.25, 25.75, 3, "black") for i in range(4)]
     frames_left = [sprite_sheet.get_image(i, 2, 21.25, 25.75, 3, "black") for i in range(4)]
     frames_right = [sprite_sheet.get_image(i, 3, 21.25, 25.75, 3, "black") for i in range(4)]
@@ -171,12 +174,28 @@ def navigate():
 
     # Define machine areas
     claw_machines = [
-        pygame.Rect(300, 300, 150, 150),  # Machine 1
-        screen.blit(claw_machine, (300,300)),
-        pygame.Rect(600, 300, 150, 150)  # Machine 2
+        pygame.Rect(300, 300, 150, 150),  
+        pygame.Rect(600, 300, 150, 150)  
 
     ]
+    P1 = (170, 550)
+    P2 = (550, 350)
+    P3 = (1050, 600)
+    P4 = (650, 800)
 
+    def point_in_polygon(px, py, x1, y1, x2, y2, x3, y3):
+        denominator = (y2 - y1) * (x3 - x1) - (x2 - x1) * (y3 - y1)
+        u = ((y2 - y1) * (px - x1) - (x2 - x1) * (py - y1)) / denominator
+        v = ((y3 - y1) * (px - x1) - (x3 - x1) * (py - y1)) / denominator
+        w = 1 - u - v
+        return u >= 0 and v >= 0 and w >= 0
+    inside_triangle1 = point_in_polygon(player_pos[0], player_pos[1], P1[0], P1[1], P2[0], P2[1], P3[0], P3[1])
+    inside_triangle2 = point_in_polygon(player_pos[0], player_pos[1], P1[0], P1[1], P3[0], P3[1], P4[0], P4[1])
+    is_inside_parallelogram = inside_triangle1 or inside_triangle2
+
+        
+        
+    
 
 
     # Main loop for the arcade room
@@ -187,14 +206,18 @@ def navigate():
                 running = False
 
         # Fill the screen with a background color
-        screen.blit(BG,(0,0))
+        screen.blit(BG,(-400,-200))
         idle = [idle_num]  
+        pygame.draw.polygon(screen, white, [P1, P2, P3, P4])
 
         # Get time delta for consistent movement speed
         dt = clock.tick(60) / 1000
 
         # Player movement
         keys = pygame.key.get_pressed()
+        new_pos = player_pos.copy()
+        if is_inside_parallelogram == True:
+            print("yes")
         if keys[pygame.K_w]:  # Move up
             idle_num = idle1
             frame_list = frames_up
@@ -213,6 +236,11 @@ def navigate():
             player_pos.x += 200 * dt
         else:
             frame_list = idle  # Default to idle animation
+        
+
+
+
+        
 
         
         frame_counter += animation_speed
@@ -224,13 +252,14 @@ def navigate():
         screen.blit(frame_list[current_frame], player_pos)
 
         for machine_rect in claw_machines:
-            screen.blit(claw_machine,(100,200))
+            #screen.blit(claw_machine,(100,200))
             pygame.draw.rect(screen, white, machine_rect )
 
         # Check if player is over any claw machine and space is pressed
         for machine_rect in claw_machines:
             if machine_rect.collidepoint(player_pos.x, player_pos.y) and keys[pygame.K_SPACE]:
                 # Switch to the claw machine game
+
                 return "play_claw_machine" 
 
         # Flip the display to put your work on the screen
@@ -255,6 +284,9 @@ rect_color = pink
 # bottom right corner
 rect_x = screen.get_width() - rect_width
 rect_y = screen.get_height() - rect_height
+
+
+
 
 if start_screen():
     while running:
